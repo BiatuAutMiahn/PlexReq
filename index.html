@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>Infinity.PlexRequest</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+        <link rel="manifest" href="site.webmanifest">
+        <meta name="theme-color" content="#0B0B0B" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha256-rByPlHULObEjJ6XQxW/flG2r+22R5dKiAoef+aXWfik=" crossorigin="anonymous" />
+        <style>
+            @font-face {
+                font-family: 'Inconsolata';
+                font-style: normal;
+                font-weight: 400;
+                font-stretch: normal;
+                src: url('Inconsolata.ttf') format('truetype');
+            }
+
+            body {
+                font-family: 'Inconsolata', monospace;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -o-user-select: none;
+                color: white;
+                -webkit-font-smoothing: antialiased;
+                font-smoothing: antialiased;
+                background: #1b1b1b;
+            }
+
+            .PlexReqLogo {
+                background: url(PlexReqLogo.png) no-repeat center center;
+                background-size: contain;
+                margin: 1em 2em 0 2em;
+
+                width: 10em;
+                height: 10em;
+                /* position: absolute; */
+            }
+
+            .Container {
+                /* max-width: 60em; */
+                margin: 0 auto;
+                padding: 0.2em;
+                /* background: rgba(255, 255, 0, 0.2); */
+            }
+
+            body {
+                font-family: "Inconsolata", monospace;
+                -moz-user-select: none;
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                -o-user-select: none;
+                color: white;
+                -webkit-font-smoothing: antialiased;
+                font-smoothing: antialiased;
+                background: #1b1b1b;
+                display: flex;
+                flex-direction: column;
+
+            }
+
+            * {
+                transition: all .3s ease;
+            }
+
+            .list-box,
+            .search-bar {
+                /*    width: 30em; */
+                /*    left: 1em; */
+                /*    top: 1em; */
+                /*    position: absolute; */
+                border-radius: 0.6em;
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .search-bar {
+                /*    position: absolute;    */
+
+            }
+
+            .list-item {
+                position: relative;
+                /* min-width: 30em;
+                min-height: 11em; */
+                overflow: hidden;
+                /* background: #3b3b3b; */
+                display: flex;
+                flex-direction: column;
+                padding: 0.1em;
+            }
+
+            .list-box .list-item:nth-child(2):last-child {
+                border-radius: 0.6em;
+            }
+
+            .list-box .list-item:nth-child(2):not(:last-child) {
+                border-radius: 0.6em 0.6em 0 0;
+            }
+
+            .list-box .list-item:last-child:not(:nth-child(2)) {
+                border-radius: 0 0 0.6em 0.6em;
+            }
+
+            .list-box .list-item:nth-of-type(odd) {
+                /* background: #2b2b2b; */
+            }
+
+            #search-results .list-item:nth-child(2):not(:last-child) {
+                border-radius: 0;
+            }
+
+            #search-results .list-item:last-child:nth-child(2) {
+                border-radius: 0 0 .6em .6em;
+            }
+
+            #search-results .search-empty {
+                border-radius: 0 0 .6em .6em;
+            }
+
+            .list-empty {
+                text-align: center;
+                padding: 0.6em 0 0.6em 0;
+                border-radius: 0.6em;
+                width: 100%;
+                position: relative;
+                min-width: 30em;
+                overflow: hidden;
+                background: #3b3b3b;
+                display: none;
+            }
+
+            .list-empty.queue-empty::before {
+                content: "The Queue is Empty";
+            }
+
+            .list-empty.search-empty::before {
+                content: "No Search Results";
+            }
+
+            .list-box .list-empty:only-child {
+                display: block;
+            }
+
+            .poster-wrap {
+                position: relative;
+                height: 8.8em;
+                width: 6.5em;
+                margin: 0.4em auto;
+            }
+
+            .poster {
+                position: absolute;
+                /* height: 8.8em;
+                width: 6.5em; */
+                height: 100%;
+                width: 100%;
+                border-radius: 0.2em;
+                /* top: 1em;
+                left: 0.6em; */
+                box-shadow: 0.06em 0.06em 0.06em 0.08em rgba(255, 255, 255, .2), 0.2em 0.2em 0.6em 0.2em rgb(0, 0, 0);
+            }
+
+            .poster .poster-edge {
+                background-color: rgba(255, 255, 255, 0.02);
+                position: absolute;
+                left: 0em;
+                top: 0em;
+                height: 100%;
+                width: 0.46em;
+                border-radius: 0.2em 0 0 0.2em;
+                box-shadow: inset 0 0 0.4em 0.01em rgba(255, 255, 255, 0.2),
+                    0 0 0 0.02em rgba(255, 255, 255, 0.4);
+            }
+
+            .poster .poster-pane {
+                display: flex;
+                position: absolute;
+                left: 0.6em;
+                height: 100%;
+                width: 5.9em;
+                border-radius: 0 0.2em 0.2em 0;
+                box-shadow: inset 0 0 1em 0.3em rgba(255, 255, 255, 0.2),
+                    0 0 0 0.02em rgba(255, 255, 255, 0.2);
+                z-index: 1;
+            }
+
+            .poster-pane::before {
+                top: 0;
+                */ background-repeat: no-repeat !important;
+                background-size: contain !important;
+                position: absolute;
+                /*    left: 0.5em; */
+                left: 0;
+                z-index: 0;
+                border-radius: 0 0.2em 0.2em 0;
+                bottom: 0;
+                right: 0;
+                /*    width:100%;
+               height:100%; */
+                content: "";
+                background-position: center !important;
+                box-shadow: inset 0 0 1em 0.3em rgba(255, 255, 255, 0.2), inset 0 0 1em 0.3em rgb(0, 0, 0);
+                background-image: var(--background);
+                /*    background-image: attr(data-poster url); */
+                /*    background: url(); */
+            }
+
+            .poster .poster-pane::after {
+                content: "Cover Not Available";
+                margin: 0 auto;
+                text-align: center;
+                /*    text-shadow: 0px 0px 15px rgb(255, 255, 255); */
+                vertical-align: center;
+                display: flex;
+                align-items: center;
+                z-index: -1;
+            }
+
+            .list-item .movie-header {
+                /* position: absolute; */
+                /* left: 9em;
+                top: 1em; */
+                display: flex;
+                flex-direction: column;
+                /* right: 1em; */
+            }
+
+            .list-item .movie-header .movie-title {
+                width: 10em;
+                margin: 0 auto;
+                text-align: center;
+                overflow: hidden;
+                /* max-height: 1em; */
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                font-size: 0.7em;
+            }
+
+            .list-item .movie-header .movie-year {
+                margin: 0 0 0 0.5em;
+                font-size: 0.6em;
+                font-style: italic;
+                margin: 0 auto;
+                color: #838383;
+            }
+
+            .list-item .movie-header .movie-status {
+                /* margin: 0 0 0 0.5em; */
+                /* font-size: 1em; */
+                /* position: absolute; */
+                /* right: 0; */
+                /* top: -0.6em; */
+                font-size: 0.6em;
+                margin: 0 auto;
+            }
+
+            .list-item .movie-summary {
+                position: absolute;
+                left: 10em;
+                top: 3.4em;
+                font-size: 0.8em;
+                font-style: italic;
+                /*    background-color: rgba(0, 255, 0, 0.1); */
+                right: 1em;
+                height: 10em;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                -webkit-line-clamp: 10;
+                display: block;
+                /* Fallback for non-webkit */
+                display: -webkit-box;
+                line-height: 1.25em;
+            }
+
+            .search-box {
+                /*    height: 2em; */
+                margin: 0 0 1em 0;
+            }
+
+            .search-bar {
+                position: relative;
+            }
+
+            .search-input {
+                overflow: hidden;
+                cursor: text border: none;
+                background: transparent;
+                outline: 0;
+                display: flex;
+                padding: .6em;
+                background: #2b2b2b;
+                border-radius: .6em;
+                border: none;
+                outline: 0;
+                height: 100%;
+                width: 100%;
+            }
+
+            .search-box .list-box {
+                border-radius: .6em .6em 0 0;
+            }
+
+            .search-input .search-text {
+                cursor: text;
+                outline-width: 0;
+                outline: 0;
+                width: 100%
+            }
+
+            .search-input:active,
+            .search-input:hover {
+                /*    box-shadow: inset 0 0 .3em .063em rgba(255, 255, 255, .3), 0 0 0 .063em rgba(255, 255, 255, .3) */
+            }
+
+            .search-input:focus-within {
+                /*    box-shadow: inset 0 0 .3em .063em rgba(255, 255, 255, .5), 0 0 0 .063em rgba(255, 255, 255, .5) */
+            }
+
+            .search-input .search-text[contentEditable=true]:empty:before {
+                content: attr(placeholder-text);
+                z-index: -1;
+                color: rgba(255, 255, 255, .3);
+                text-shadow: none
+            }
+
+            .search-spinner {
+                display: none;
+                /* padding: 0px; */
+                /* z-index: 2; */
+                position: absolute;
+                width: 100%;
+            }
+
+            .spinner-container {
+                z-index: 2;
+                position: absolute;
+                right: 1em;
+                width: 1em;
+                height: 1em;
+                align-content: center;
+                display: flex;
+                vertical-align: middle;
+            }
+
+            .search-spinner {
+                -webkit-animation: rotate 2s linear infinite;
+                animation: rotate 2s linear infinite;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                margin-left: -0.9em;
+                margin-top: -0.9em;
+                width: 1.8em;
+                height: 1.8em;
+            }
+
+            .search-spinner .path {
+                /* stroke: #93bfec; */
+                stroke: #fff;
+                stroke-linecap: round;
+                -webkit-animation: dash 1.5s ease-in-out infinite;
+                animation: dash 1.5s ease-in-out infinite;
+            }
+
+            @-webkit-keyframes rotate {
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+
+            @keyframes rotate {
+                100% {
+                    -webkit-transform: rotate(360deg);
+                    transform: rotate(360deg);
+                }
+            }
+
+            @-webkit-keyframes dash {
+                0% {
+                    stroke-dasharray: 1, 150;
+                    stroke-dashoffset: 0;
+                }
+
+                50% {
+                    stroke-dasharray: 90, 150;
+                    stroke-dashoffset: -35;
+                }
+
+                100% {
+                    stroke-dasharray: 90, 150;
+                    stroke-dashoffset: -124;
+                }
+            }
+
+            @keyframes dash {
+                0% {
+                    stroke-dasharray: 1, 150;
+                    stroke-dashoffset: 0;
+                }
+
+                50% {
+                    stroke-dasharray: 90, 150;
+                    stroke-dashoffset: -35;
+                }
+
+                100% {
+                    stroke-dasharray: 90, 150;
+                    stroke-dashoffset: -124;
+                }
+            }
+
+            #search-results .movie-status {
+                display: none;
+            }
+
+            #search-results .list-item:hover {
+                background-color: #4b4b4b;
+            }
+
+            .ui-widget-content {
+                border: unset;
+                background: #3b3b3b;
+                color: #fff;
+            }
+
+            .ui-dialog-titlebar {
+                background: #4b4b4b;
+                color: #fff;
+            }
+
+            .ui-widget-overlay {
+                background: rgba(27, 27, 27, 0.7);
+                opacity: 1;
+            }
+
+            .queue-result {
+                display: block;
+                position: absolute;
+                left: 0;
+                top: 3em;
+            }
+        </style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/base64-js@1.3.0/base64js.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
+    </head>
+
+    <body onload="init();">
+        <div class="PlexReqLogo"></div>
+        <div style="display:none;" id="confirm-request" title="Send Request">
+            <p><span class="" style="float:left; margin:12px 12px 20px 0;"></span>Are you sure you would like to request this title?</p>
+        </div>
+        <div style="display:none;" id="request-result" title="Request Result">
+            <p><span class="" style="float:left; margin:12px 12px 20px 0;"></span>&nbsp;</p>
+        </div>
+        <div class="Container">
+            <div class="search-box">
+                <div class="search-bar">
+                    <div class="search-input">
+                        <div contentEditable=true class="search-text" placeholder-text="Search here for something new!"></div>
+                        <div class="spinner-container">
+                            <svg class="search-spinner" viewBox="0 0 50 50">
+                                <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="list-box" style="display:none" id="search-results">
+                    <div class="list-empty search-empty"></div>
+                </div>
+            </div>
+            <div>Active Requests:</div>
+            <div class="list-box" id="requests-queue">
+                <div class="list-empty queue-empty"></div>
+            </div>
+        </div>
+        <script>
+            (function($) {
+                $.each(["show", "hide"], function(i, ev) {
+                    var el = $.fn[ev];
+                    $.fn[ev] = function() {
+                        this.trigger(ev);
+                        return el.apply(this, arguments);
+                    };
+                });
+            })(jQuery);
+
+            onSearchShow = function() {
+                if ($("#search-results").is(":visible")) {
+                    $(".search-input").css("border-radius", ".6em .6em 0 0");
+                } else {
+                    $(".search-input").css("border-radius", ".6em");
+                }
+            };
+            $("#search-results").on("show", function() {
+                $(".search-input").css("border-radius", ".6em .6em 0 0");
+            });
+            $("#search-results").on("hide", function() {
+                $(".search-input").css("border-radius", ".6em");
+            });
+            onSearchShow();
+            clearSearch = function() {
+                $("#search-results").children().not(':first').remove();
+            }
+            clearRequests = function() {
+                $("#requests-queue").children().not(':first').remove();
+            }
+            searchAddItem = function(data) {
+                test = $('<div data-item="' + data['data'] + '" class="list-item"><div class="poster"><div class="poster-edge"></div><div class="poster-pane" style="--background:url(\'' + data['poster'] +
+                    '\')"></div></div><div class="movie-header"><div class="movie-title">' + data['title'] + '</div><div class="movie-year">' + data['year'] + '</div><div class="movie-status">Queued</div></div><div class="movie-summary">' +
+                    data['summary'] + '</div></div>');
+                $("#search-results").append(test);
+                test.on("click", function() {
+                    var b64dat = Base64Decode($(this).attr('data-item'));
+                    var item = JSON.parse(b64dat);
+                    var data = {
+                        id: item.id,
+                        title: item.title,
+                        year: item.release_date.substring(0, 4),
+                        poster: 'https://image.tmdb.org/t/p/original' + item.poster_path,
+                        summary: item.overview,
+                    }
+                    console.log(data);
+                    $("#confirm-request").html(
+                        '<div id="search-results" style="color:#fff" class="list-item"><div class="poster"><div class="poster-edge"></div><div class="poster-pane" style="--background:url(\'' + data['poster'] +
+                        '\')"></div></div><div class="movie-header"><div class="movie-title">' + data['title'] + '</div><div class="movie-year">' + data['year'] +
+                        '</div><div class="movie-status">Queued</div></div><div class="movie-summary">' +
+                        data['summary'] + '</div></div>');
+                    // var item = $(this).clone();
+                    // $("#confirm-request").html(item);
+                    // $( ".hello" ).clone().appendTo( ".goodbye" );
+                    $("#request-result").html(
+                        '<div id="search-results" style="color:#fff;min-width:18em;width:18em;" class="list-item"><div class="poster"><div class="poster-edge"></div><div class="poster-pane" style="--background:url(\'' + data[
+                            'poster'] +
+                        '\')"></div></div><div class="movie-header"><div class="movie-title">' + data['title'] + '</div><div class="movie-year">' + data['year'] +
+                        '</div><div class="queue-result" id="queue-result" class="display:block;position:absolute;left:0;top:3em;"></div></div></div>');
+                    $("#confirm-request").dialog({
+                        resizable: false,
+                        height: "auto",
+                        width: "40em",
+                        modal: true,
+                        draggable: false,
+                        buttons: {
+                            "Yes": function() {
+                                $(this).dialog("close");
+                                $.post("/", {
+                                    json: b64dat
+                                }, function(data) {
+                                    var res = jQuery.parseJSON(data);
+                                    console.log(res);
+                                    // var ReqResult = res;
+                                    switch (res['result']) {
+                                        case "QueueExists":
+                                            $("#request-result #queue-result").text("Already Queued");
+                                            break;
+                                        case "Queued":
+                                            $("#request-result #queue-result").text("Queued");
+                                            break;
+                                        case "MovieExists":
+                                            $("#request-result #queue-result").text("Movie Already Exists");
+                                            break;
+                                    }
+
+                                    $("#request-result").dialog({
+                                        resizable: false,
+                                        height: "auto",
+                                        width: "20em",
+                                        modal: true,
+                                        draggable: false,
+                                        buttons: {
+                                            "OK": function() {
+                                                $(this).dialog("close");
+                                            }
+                                        },
+                                    });
+                                });
+                            },
+                            Cancel: function() {
+                                $(this).dialog("close");
+                            }
+                        }
+                    });
+                });
+            }
+            requestsAddItem = function(movId, status) {
+                if (!movId in movMeta) {
+                    return false;
+                }
+                var poster
+                if ("poster_path" in movMeta[movId]) {
+                    poster = 'https://image.tmdb.org/t/p/original' + movMeta[movId]["poster_path"];
+                }
+
+
+                test = $('<div class="list-item"><div class="poster-wrap"><div class="poster"><div class="poster-edge"></div><div class="poster-pane" style="--background:url(\'' + poster +
+                    '\')"></div></div></div><div class="movie-header"><div class="movie-title">' + movMeta[movId]['title'] + '</div><div class="movie-year">' + movMeta[movId]['release_date'].replace(/-/g, '.') +
+                    '</div><!--<div class="movie-status">' + status + '</div>--></div></div>');
+                $("#requests-queue").append(test);
+            }
+
+            function Base64Encode(str, encoding = 'utf-8') {
+                var bytes = new(TextEncoder || TextEncoderLite)(encoding).encode(str);
+                return base64js.fromByteArray(bytes);
+            }
+
+            function Base64Decode(str, encoding = 'utf-8') {
+                var bytes = base64js.toByteArray(str);
+                return new(TextDecoder || TextDecoderLite)(encoding).decode(bytes);
+            }
+            // $("#search-results .list-item")
+            $(".search-text").on("change keyup paste", function(event) {
+                console.log('"' + $(this).text() + '"');
+                event.stopPropagation();
+                if ($(this).text() == "") {
+                    $("#search-results").css("display", "none");
+                    $(".search-input").css("border-radius", ".6em");
+                } else {
+                    $(".search-spinner").css("display", "block");
+                    $.getJSON("//api.themoviedb.org/3/search/movie?", {
+                            api_key: "ccdbe335923ce7f6edf53d7db06562b2",
+                            language: "en-US",
+                            query: $(this).text(),
+                            page: "1",
+                            include_adult: "false"
+                        }, function(data) {
+                            //console.log(data);
+                            clearSearch();
+                            //$("#results").append("Results for <b>" + q + "</b>");
+                            if (data.total_results > 0) {
+                                $("#search-results").css("display", "flex");
+                                $(".search-input").css("border-radius", ".6em .6em 0 0");
+                            }
+                            $.each(data.results, function(i, item) {
+                                // console.log(item)
+                                var sYear = '';
+                                if (item.release_date) {
+                                    sYear = item.release_date.replace(/-/g, '.'); //.substring(0, 4);
+                                }
+                                searchAddItem({
+                                    id: item.id,
+                                    title: item.title,
+                                    year: sYear,
+                                    poster: 'https://image.tmdb.org/t/p/original' + item.poster_path,
+                                    summary: item.overview,
+                                    data: Base64Encode(JSON.stringify(item))
+                                })
+                            });
+                        })
+                        .always(function() {
+                            setTimeout(function() {
+                                $(".search-spinner").css("display", "none")
+                            }, 2000);
+
+                        });
+                }
+            });
+            var movMeta;
+            var movRequests;
+            var movLocal;
+            var ltReq = new Date();
+            var ltMov = new Date();
+            var ltMet = new Date();
+            var upd = false;
+            init = function() {
+                window.setInterval(function() {
+                    $.getJSON("notify.json", function(tStamps) {
+                        var tReq = tStamps[0];
+                        var tMov = tStamps[2];
+                        var tMet = tStamps[1];
+                        if (ltMov != tMov) {
+                            console.log({
+                                "ltMov": ltMov,
+                                "tMov": tMov
+                            });
+                            if (upd) {
+                                ltMov = tMov;
+                            }
+                            $.getJSON("movies.json", function(data) {
+                                movLocal = data;
+                            });
+                        }
+                        if (ltMet != tMet) {
+                            console.log({
+                                "ltMet": ltMet,
+                                "tMet": tMet
+                            });
+                            if (upd) {
+                                ltMet = tMet;
+                            }
+                            $.getJSON("meta.json", function(data) {
+                                movMeta = data;
+                            });
+                        }
+                        if (ltReq != tReq) {
+                            if (typeof(movMeta) != "undefined") {
+                                console.log({
+                                    "ltReq": ltReq,
+                                    "tReq": tReq
+                                });
+                                $.getJSON("requests.json", function(data) {
+                                    movRequests = data;
+                                    // $("#requests-queue").css("display", "none");
+                                    clearRequests();
+                                    for (var key in movRequests) {
+                                        requestsAddItem(key, movRequests[key]);
+                                        if (!upd) upd = true;
+                                    }
+                                    if (upd) {
+                                        ltReq = tReq;
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }, 1000);
+            }
+        </script>
+    </body>
+
+</html>
